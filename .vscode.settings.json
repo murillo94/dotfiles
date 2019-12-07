@@ -1,0 +1,37 @@
+{
+  "workbench.startupEditor": "newUntitledFile",
+  "files.associations": {
+    "*.html": "html"
+  },
+  "[html]": {
+    "editor.wordWrap": "on",
+    "editor.defaultFormatter": "HookyQR.beautify"
+  },
+  "workbench.colorTheme": "One Dark Pro",
+  "window.zoomLevel": 0,
+  "editor.cursorBlinking": "solid",
+  "editor.minimap.enabled": true,
+  "editor.renderWhitespace": "all",
+  "editor.fontFamily": "'Cascadia Code', Consolas, 'Courier New', monospace",
+  "files.trimTrailingWhitespace": true,
+  "prettier.disableLanguages": ["html"],
+  "prettier.singleQuote": true,
+  "python.pythonPath": "/usr/local/bin/python3",
+  "python.linting.pylintArgs": ["--load-plugins", "pylint_django"],
+  "workbench.activityBar.visible": true,
+  "editor.tabSize": 2,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.fontLigatures": true,
+  "editor.fontSize": 13,
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
