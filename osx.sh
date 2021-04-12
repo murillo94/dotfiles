@@ -21,15 +21,6 @@ sudo scutil --set HostName $COMPUTER_NAME
 sudo scutil --set LocalHostName $COMPUTER_NAME
 sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.smb.server NetBIOSName -string $COMPUTER_NAME
 
-echo "Hiding the Time Machine, Volume, User, and Bluetooth icons"
-for domain in ~/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
-  defaults write "${domain}" dontAutoLoad -array \
-    "/System/Library/CoreServices/Menu Extras/User.menu"
-done
-defaults write com.apple.systemuiserver menuExtras -array \
-  "/System/Library/CoreServices/Menu Extras/AirPort.menu" \
-  "/System/Library/CoreServices/Menu Extras/TimeMachine.menu"
-
 echo "Disabling the sound effects on boot"
 sudo nvram SystemAudioVolume=" "
 
@@ -250,16 +241,6 @@ echo "Enabling UTF-8 ONLY in Terminal.app and setting the Basic theme by default
 defaults write com.apple.terminal StringEncodings -array 4
 defaults write com.apple.Terminal "Default Window Settings" -string "Basic"
 defaults write com.apple.Terminal "Startup Window Settings" -string "Basic"
-
-###############################################################################
-# Time Machine
-###############################################################################
-
-echo "Preventing Time Machine from prompting to use new hard drives as backup volume"
-defaults write com.apple.TimeMachine DoNotOfferNewDisksForBackup -bool true
-
-echo "Disabling local Time Machine backups"
-hash tmutil &> /dev/null && sudo tmutil disablelocal
 
 ###############################################################################
 # Photos                                                                      
