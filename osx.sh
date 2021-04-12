@@ -27,15 +27,11 @@ for domain in ~/Library/Preferences/ByHost/com.apple.systemuiserver.*; do
     "/System/Library/CoreServices/Menu Extras/User.menu"
 done
 defaults write com.apple.systemuiserver menuExtras -array \
-  "/System/Library/CoreServices/Menu Extras/Bluetooth.menu" \
   "/System/Library/CoreServices/Menu Extras/AirPort.menu" \
-  "/System/Library/CoreServices/Menu Extras/Battery.menu" \
-  "/System/Library/CoreServices/Menu Extras/Clock.menu" \
-  "/System/Library/CoreServices/Menu Extras/Volume.menu" \
   "/System/Library/CoreServices/Menu Extras/TimeMachine.menu"
 
-echo "Hide the Spotlight icon"
-sudo chmod 600 /System/Library/CoreServices/Search.bundle/Contents/MacOS/Search
+echo "Disabling the sound effects on boot"
+sudo nvram SystemAudioVolume=" "
 
 echo "Disabling OS X Gate Keeper"
 sudo spctl --master-disable
@@ -53,28 +49,66 @@ defaults write NSGlobalDomain PMPrintingExpandedStateForPrint2 -bool true
 echo "Automatically quit printer app once the print jobs complete"
 defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true
 
+echo "Disabling the 'Are you sure you want to open this application?'"
+defaults write com.apple.LaunchServices LSQuarantine -bool false
+
 echo "Disabling automatic termination of inactive apps"
 defaults write NSGlobalDomain NSDisableAutomaticTermination -bool true
 
 echo "Saving to disk (not to iCloud) by default"
 defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
 
-echo "Reveal IP address, hostname, OS version, etc. when clicking the clock in the login window"
-sudo defaults write /Library/Preferences/com.apple.loginwindow AdminHostInfo HostName
-
 echo "Check for software updates daily, not just once per week"
 defaults write com.apple.SoftwareUpdate ScheduleFrequency -int 1
 
-echo "Disable smart quotes and smart dashes as they're annoying when typing code"
-defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
-defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+echo "Setting language and text formats"
+defaults write NSGlobalDomain AppleLanguages -array "en" "nl"
+defaults write NSGlobalDomain AppleLocale -string "en_US@currency=USD"
+defaults write NSGlobalDomain AppleMeasurementUnits -string "Centimeters"
+defaults write NSGlobalDomain AppleMetricUnits -bool false
+
+echo "Setting the timezone"
+sudo systemsetup -settimezone "America/Sao_Paulo" > /dev/null
+
+###############################################################################
+# Energy saving                                                               #
+###############################################################################
+
+echo "Enabling lid wakeup"
+sudo pmset -a lidwake 1
+
+echo "Restarting automatically on power loss"
+sudo pmset -a autorestart 1
+
+echo "Restarting automatically if the computer freezes"
+sudo systemsetup -setrestartfreeze on
+
+echo "Sleeping the display after 15 minutes"
+sudo pmset -a displaysleep 15
+
+echo "Disabling machine sleep while charging"
+sudo pmset -c sleep 0
+
+echo "Setting machine sleep to 5 minutes on battery"
+sudo pmset -b sleep 5
+
+echo "Setting standby delay to 24 hours (default is 1 hour)"
+sudo pmset -a standbydelay 86400
+
+echo "Never go into computer sleep mode"
+sudo systemsetup -setcomputersleep Off > /dev/null
+
+echo "Setting hibernation mode"
+sudo pmset -a hibernatemode 0
+
+echo "Removing the sleep image file to save disk space"
+sudo rm /private/var/vm/sleepimage
+sudo touch /private/var/vm/sleepimage
+sudo chflags uchg /private/var/vm/sleepimage
 
 ###############################################################################
 # Trackpad, mouse, keyboard, Bluetooth accessories, and input
 ###############################################################################
-
-echo "Increasing sound quality for Bluetooth headphones/headsets"
-defaults write com.apple.BluetoothAudioAgent "Apple Bitpool Min (editable)" -int 40
 
 echo "Enabling full keyboard access for all controls (e.g. enable Tab in modal dialogs)"
 defaults write NSGlobalDomain AppleKeyboardUIMode -int 3
@@ -83,21 +117,25 @@ echo "Disabling press-and-hold for keys in favor of a key repeat"
 defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool true
 
 echo "Setting a blazingly fast keyboard repeat rate (ain't nobody got time fo special chars while coding!)"
-# defaults write NSGlobalDomain KeyRepeat -int 0
 defaults write NSGlobalDomain KeyRepeat -int 1
+defaults write NSGlobalDomain InitialKeyRepeat -int 10
 
 echo "Disabling auto-correct"
 defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
+
+echo "Disable smart quotes and smart dashes as they're annoying when typing code"
+defaults write NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled -bool false
+defaults write NSGlobalDomain NSAutomaticDashSubstitutionEnabled -bool false
+
+echo "Disable automatic capitalization as it’s annoying when typing code"
+defaults write NSGlobalDomain NSAutomaticCapitalizationEnabled -bool false
 
 echo "Setting trackpad & mouse speed to a reasonable number"
 defaults write -g com.apple.trackpad.scaling 2
 defaults write -g com.apple.mouse.scaling 2.5
 
-echo "Setting trackpad to tap mode"
-defaults -currentHost write -globalDomain com.apple.mouse.tapBehavior -int 1
-
-echo "Turn off keyboard illumination when computer is not used for 2.5 minutes"
-defaults write com.apple.BezelServices kDimTime -int 150
+echo "Turn off keyboard illumination when computer is not used for 1.3 minutes"
+defaults write com.apple.BezelServices kDimTime -int 90
 
 ###############################################################################
 # Screen
@@ -110,8 +148,14 @@ defaults write com.apple.screensaver askForPasswordDelay -int 0
 echo "Setting screenshot format to PNG"
 defaults write com.apple.screencapture type -string "png"
 
+echo "Save screenshots to the desktop"
+defaults write com.apple.screencapture location -string "${HOME}/Desktop"
+
+echo "Disable shadow in screenshots"
+defaults write com.apple.screencapture disable-shadow -bool true
+
 echo "Enabling subpixel font rendering on non-Apple LCDs"
-defaults write NSGlobalDomain AppleFontSmoothing -int 2
+defaults write NSGlobalDomain AppleFontSmoothing -int 1
 
 echo "Enabling HiDPI display modes (requires restart)"
 sudo defaults write /Library/Preferences/com.apple.windowserver DisplayResolutionEnabled -bool true
@@ -132,11 +176,15 @@ defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
 echo "Disabling the warning when changing a file extension"
 defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
 
-echo "Use column view in all Finder windows by default"
-defaults write com.apple.finder FXPreferredViewStyle Clmv
+echo "Use list view in all Finder windows by default"
+defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv"
 
-echo "Avoiding the creation of .DS_Store files on network volumes"
+echo "Disable the warning before emptying the Trash"
+defaults write com.apple.finder WarnOnEmptyTrash -bool false
+
+echo "Avoid creating .DS_Store files on network or USB volumes"
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
 
 echo "Show path bar"
 defaults write com.apple.finder ShowPathbar -bool true
@@ -149,10 +197,6 @@ defaults write com.apple.finder ShowExternalHardDrivesOnDesktop -bool true
 defaults write com.apple.finder ShowHardDrivesOnDesktop -bool true
 defaults write com.apple.finder ShowMountedServersOnDesktop -bool true
 defaults write com.apple.finder ShowRemovableMediaOnDesktop -bool true
-
-echo "Set $HOME as the default location for new Finder windows"
-defaults write com.apple.finder NewWindowTarget -string "PfDe"
-defaults write com.apple.finder NewWindowTargetPath -string "file://${HOME}/"
 
 ###############################################################################
 # Dock & Mission Control
@@ -218,17 +262,34 @@ echo "Disabling local Time Machine backups"
 hash tmutil &> /dev/null && sudo tmutil disablelocal
 
 ###############################################################################
+# Photos                                                                      
+###############################################################################
+
+echo "Preventing Photos from opening automatically when devices are plugged in" 
+defaults -currentHost write com.apple.ImageCapture disableHotPlug -bool true
+
+###############################################################################
 # Personal Additions
 ###############################################################################
 
 echo "Disable the sudden motion sensor as it's not useful for SSDs"
 sudo pmset -a sms 0
 
-echo "Speeding up wake from sleep to 24 hours from an hour"
-sudo pmset -a standbydelay 86400
+###############################################################################
+# Google Chrome & Google Chrome Canary                                        #
+###############################################################################
 
-echo "Disable annoying backswipe in Chrome"
+echo "Disable the all too sensitive backswipe on trackpads"
 defaults write com.google.Chrome AppleEnableSwipeNavigateWithScrolls -bool false
+
+echo "Disable the all too sensitive backswipe on Magic Mouse"
+defaults write com.google.Chrome AppleEnableMouseSwipeNavigateWithScrolls -bool false
+
+echo "Use the system-native print preview dialog"
+defaults write com.google.Chrome DisablePrintPreview -bool true
+
+echo "Expand the print dialog by default"
+defaults write com.google.Chrome PMPrintingExpandedStateForPrint2 -bool true
 
 ###############################################################################
 # Kill affected applications

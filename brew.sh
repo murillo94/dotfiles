@@ -32,7 +32,13 @@ brew install notion --cask
 echo "Installing telegram"
 brew install telegram --cask
 
+echo "Copyng git configs"
+cp .gitconfig ~/.gitconfig
+source ~/.gitconfig
+
 echo "Making Zsh the default shell"
+cp .zshrc ~/.zshrc
+source ~/.zshrc
 chsh -s $(which zsh)
 
 echo "Done!"
