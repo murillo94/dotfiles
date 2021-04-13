@@ -17,6 +17,9 @@ sudo xcodebuild -license accept
 echo "Installing zsh-autosuggestions"
 git clone https://github.com/zsh-users/zsh-autosuggestions ~/.zsh/zsh-autosuggestions
 
+echo "Installing yarn"
+brew install yarn
+
 echo "Installing google-chrome"
 brew install google-chrome --cask
 
